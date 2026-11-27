@@ -1,48 +1,13 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { FALLBACK_WA_DIGITS, formatPhone } from './config'
-import { supabase } from './supabase'
+const clean = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
 
-interface SettingsValue {
-  waDigits: string
-  phoneDisplay: string
-  waLink: (text?: string) => string
-}
+export const SUPABASE_URL = clean(import.meta.env.VITE_SUPABASE_URL)
+export const SUPABASE_KEY = clean(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY)
 
-const Ctx = createContext<SettingsValue | null>(null)
+/** Запасной номер на случай, если настройки сайта в базе недоступны. */
+export const FALLBACK_WA_DIGITS = clean(import.meta.env.VITE_WHATSAPP_PHONE).replace(/\D/g, '') || '77777777777'
 
-export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [digits, setDigits] = useState(FALLBACK_WA_DIGITS)
-
-  useEffect(() => {
-    if (!supabase) return
-    let alive = true
-    supabase
-      .from('site_settings')
-      .select('value')
-      .eq('key', 'whatsapp_phone')
-      .maybeSingle()
-      .then(({ data }) => {
-        const v = typeof data?.value === 'string' ? data.value.replace(/\D/g, '') : ''
-        if (alive && v.length >= 10) setDigits(v)
-      })
-    return () => {
-      alive = false
-    }
-  }, [])
-
-  const value = useMemo<SettingsValue>(
-    () => ({
-      waDigits: digits,
-      phoneDisplay: formatPhone(digits),
-      waLink: (text?: string) => `https://wa.me/${digits}${text ? `?text=${encodeURIComponent(text)}` : ''}`
-    }),
-    [digits]
-  )
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>
-}
-
-export function useSettings(): SettingsValue {
-  const v = useContext(Ctx)
-  if (!v) throw new Error('useSettings вне SettingsProvider')
-  return v
+export function formatPhone(digits: string): string {
+  const d = digits.replace(/\D/g, '')
+  if (d.length !== 11) return `+${d}`
+  return `+${d[0]} ${d.slice(1, 4)} ${d.slice(4, 7)} ${d.slice(7)}`
 }
