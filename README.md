@@ -1,33 +1,42 @@
 # SuperMebelWeb
 
-Промо-сайт мебели на заказ в Шымкенте. React + TypeScript + Vite, русский и казахский языки, адаптивная вёрстка, заявки через WhatsApp.
+Сайт мебели на заказ в Шымкенте. React + TypeScript + Vite, русский и казахский (`/` и `/kk`), Supabase (аккаунты, заявки, каталог), Netlify Functions.
 
 ## Запуск локально
 
-1. Установите Node.js 20 или новее.
-2. Скопируйте `.env.example` в `.env`.
-3. Укажите номер WhatsApp в `.env` (только цифры, с кодом страны).
-4. Выполните:
-
 ```bash
 npm install
+cp .env.example .env   # заполните VITE_SUPABASE_PUBLISHABLE_KEY
 npm run dev
 ```
 
+## Переменные окружения
+
+В браузер попадают только переменные с префиксом `VITE_` — в них нельзя хранить секреты.
+
+| Переменная | Где | Назначение |
+| --- | --- | --- |
+| `VITE_SUPABASE_URL` | сайт | адрес проекта Supabase |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | сайт | публичный ключ (publishable / anon) |
+| `VITE_WHATSAPP_PHONE` | сайт | запасной номер; основной хранится в `site_settings` |
+| `SUPABASE_URL` | функции | адрес проекта Supabase |
+| `SUPABASE_SERVICE_ROLE_KEY` | функции | секретный ключ, только на Netlify |
+| `INQUIRY_SALT` | функции | длинная случайная строка для хеширования IP |
+| `SITE_URL` | функции | адрес сайта, например `https://name.netlify.app` |
+| `GEMINI_API_KEY` | функции | ключ Gemini (для ИИ-чата) |
+
 ## Публикация на Netlify
 
-- Build command: `npm run build`
-- Publish directory: `dist`
-- В Netlify → Site configuration → Environment variables добавьте `VITE_WHATSAPP_PHONE`.
-- После изменения переменных запустите новый deploy.
+- Build command: `npm run build`, publish directory: `dist`.
+- Добавьте переменные из таблицы в Site configuration → Environment variables.
+- После сборки скрипт `scripts/seo.mjs` создаёт `sitemap.xml` и `robots.txt` для адреса сайта.
 
-## Безопасность переменных
+## Supabase Auth
 
-- Настоящий `.env` и `.env.*` исключены через `.gitignore`.
-- В репозиторий можно загрузить только `.env.example`, без секретов.
-- Любая переменная `VITE_` попадает в клиентский JavaScript. Поэтому `VITE_WHATSAPP_PHONE` — публичный номер, не секрет.
-- Пароли, токены, ключи API и учётные данные базы данных нельзя хранить в `VITE_` переменных.
+В Authentication → URL Configuration укажите Site URL и добавьте в Redirect URLs адреса сайта: `/login`, `/reset`, `/account` (и версии с `/kk`).
 
-## Важно
+## Что готово
 
-Это первая версия сайта-витрины. Форма открывает WhatsApp с подготовленным текстом, но не сохраняет заявки в базе данных. Админ-панель, авторизация и база данных ещё не подключены. Изображения каталога пока являются стилизованными временными визуальными заглушками.
+Главная, каталог и страницы направлений, о компании, контакты, политика, страница благодарности, 404, регистрация и вход, восстановление пароля, личный кабинет, сохранение заявок через `/api/inquiry` с ограничением частоты.
+
+Ещё не сделано: админ-панель, ИИ-чат, чат с администратором, 3D-просмотр.
