@@ -4,12 +4,12 @@
   --bg:#E9EAE6;--surface:#F3F3F0;--ink:#1F2226;--muted:#5B6168;--line:rgba(31,34,38,.15);
   --accent:#8A5A2B;--wall:#DADCD7;--floor:#C5C8C2;--top:#F1F1EE;
   --band-bg:#1F2226;--band-fg:#ECECE8;--band-muted:#A9AFB5;--band-line:rgba(236,236,232,.22);
-  --radius:6px;--maxw:1160px;color-scheme:light
+  --daylight:rgba(255,255,255,.5);--radius:6px;--maxw:1160px;color-scheme:light
 }
 :root[data-theme=dark]{
   --bg:#15171A;--surface:#1D2024;--ink:#ECECE8;--muted:#A3A9AF;--line:rgba(236,236,232,.16);
   --accent:#D39C62;--wall:#23272B;--floor:#1B1D20;--top:#D5D5D0;
-  --band-bg:#202429;--band-fg:#ECECE8;--band-muted:#A9AFB5;--band-line:rgba(236,236,232,.2);color-scheme:dark
+  --daylight:rgba(255,255,255,.035);--band-bg:#202429;--band-fg:#ECECE8;--band-muted:#A9AFB5;--band-line:rgba(236,236,232,.2);color-scheme:dark
 }
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
@@ -19,6 +19,8 @@ a{color:inherit}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 main:focus{outline:none}
+body::before{content:"";position:fixed;inset:0 -25%;z-index:-1;pointer-events:none;background:linear-gradient(105deg,transparent 34%,var(--daylight) 50%,transparent 66%);animation:daylight 80s ease-in-out infinite alternate;will-change:transform}
+@keyframes daylight{from{transform:translateX(-7%)}to{transform:translateX(7%)}}
 h1,h2,h3{font-family:var(--font-head);font-weight:600;line-height:1.1;letter-spacing:-.015em;margin:0}
 h1{font-size:clamp(2.3rem,5.6vw,4.3rem)}
 h2{font-size:clamp(1.65rem,3.3vw,2.5rem)}
@@ -67,7 +69,7 @@ p{margin:0 0 1rem}
 .section-head{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:end;margin-bottom:2.5rem}
 .section-head p{color:var(--muted);margin:0;max-width:46ch}
 .subhead{font-size:1.35rem;margin:2.5rem 0 1rem}
-.notice{background:var(--surface);border-left:3px solid var(--accent);padding:.9rem 1.1rem;border-radius:0 var(--radius) var(--radius) 0;color:var(--muted)}
+.notice{background:var(--surface);border:1px solid var(--line);padding:.9rem 1.1rem;border-radius:var(--radius);color:var(--muted)}
 .band{background:var(--band-bg);color:var(--band-fg)}
 .band .lead{color:var(--band-muted)}
 .band .btn-primary{background:var(--band-fg);color:var(--band-bg)}
