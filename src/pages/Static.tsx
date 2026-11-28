@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { MessageCircle, Phone } from 'lucide-react'
+import { MapPin, MessageCircle, Phone } from 'lucide-react'
 import Seo from '../components/Seo'
 import InquiryForm from '../components/InquiryForm'
 import { useLang } from '../i18n/LangContext'
@@ -24,7 +24,7 @@ export function About() {
 
 export function Contacts() {
   const { t } = useLang()
-  const { phoneDisplay, waDigits, waLink } = useSettings()
+  const { phoneDisplay, waDigits, waLink, address } = useSettings()
   return (
     <>
       <Seo title={t.contacts.title} description={t.seo.contactsDesc} />
@@ -34,6 +34,10 @@ export function Contacts() {
             <h1>{t.contacts.title}</h1>
             <p className="lead">{t.contacts.city}</p>
             <ul className="contact-list">
+              <li>
+                <MapPin size={18} aria-hidden="true" />
+                <span>{address || t.contacts.addressPending}</span>
+              </li>
               <li>
                 <Phone size={18} aria-hidden="true" />
                 <a href={`tel:+${waDigits}`}>{phoneDisplay}</a>
