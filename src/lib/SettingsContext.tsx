@@ -5,6 +5,7 @@ import { supabase } from './supabase'
 interface SettingsValue {
   waDigits: string
   phoneDisplay: string
+  address: string
   waLink: (text?: string) => string
 }
 
@@ -12,18 +13,26 @@ const Ctx = createContext<SettingsValue | null>(null)
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [digits, setDigits] = useState(FALLBACK_WA_DIGITS)
+  const [address, setAddress] = useState('')
 
   useEffect(() => {
     if (!supabase) return
     let alive = true
     supabase
       .from('site_settings')
-      .select('value')
-      .eq('key', 'whatsapp_phone')
-      .maybeSingle()
+      .select('key, value')
+      .in('key', ['whatsapp_phone', 'address'])
       .then(({ data }) => {
-        const v = typeof data?.value === 'string' ? data.value.replace(/\D/g, '') : ''
-        if (alive && v.length >= 10) setDigits(v)
+        if (!alive || !data) return
+        for (const row of data) {
+          if (typeof row.value !== 'string') continue
+          if (row.key === 'whatsapp_phone') {
+            const v = row.value.replace(/\D/g, '')
+            if (v.length >= 10) setDigits(v)
+          } else if (row.key === 'address') {
+            setAddress(row.value.trim().slice(0, 200))
+          }
+        }
       })
     return () => {
       alive = false
@@ -34,9 +43,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     () => ({
       waDigits: digits,
       phoneDisplay: formatPhone(digits),
+      address,
       waLink: (text?: string) => `https://wa.me/${digits}${text ? `?text=${encodeURIComponent(text)}` : ''}`
     }),
-    [digits]
+    [digits, address]
   )
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
